@@ -1,5 +1,5 @@
 import org.junit.Test;
-
+import java.util.*;
 import static org.junit.Assert.*;
 
 public class TreapTest {
@@ -8,37 +8,28 @@ public class TreapTest {
     public void testForAddRemoveContains() {
     Treap<Integer> treap1 = new Treap<>();
 
-    /* Добавим эти узлы в treap1
-                                [7, 10]
-                            /            \
-                      [4, 6]                [13, 8]
-                     /      \              /       \
-                [2, 4]       [6, 2]   [9, 7]       [14, 4]
-               /      \       /             \
-           [0, 3]   [3, 3]  [5, 1]          [11, 3]
 
-     */
+        assertTrue(treap1.isEmpty());
 
-        assertEquals(0, treap1.size());
-
-        assertTrue(treap1.add(7, 10));
-        assertTrue(treap1.add(4, 6));
-        assertTrue(treap1.add(2, 4));
-        assertTrue(treap1.add(0, 3));
-        assertTrue(treap1.add(3, 3));
-        assertTrue(treap1.add(6, 2));
-        assertTrue(treap1.add(5, 1));
+        //Тест для add()
+        assertTrue(treap1.add(7));
+        assertTrue(treap1.add(4));
+        assertTrue(treap1.add(2));
+        assertTrue(treap1.add(0));
+        assertTrue(treap1.add(3));
+        assertTrue(treap1.add(6));
+        assertTrue(treap1.add(5));
 
         assertEquals(7, treap1.size());
 
-        assertTrue(treap1.add(13, 8));
-        assertTrue(treap1.add(9,7));
-        assertTrue(treap1.add(14,4));
-        assertTrue(treap1.add(11,3));
+        assertTrue(treap1.add(13));
+        assertTrue(treap1.add(9));
+        assertTrue(treap1.add(14));
+        assertTrue(treap1.add(11));
 
         assertEquals(11, treap1.size());
 
-
+        //Тест для remove()
         assertTrue(treap1.remove(7));
         assertTrue(treap1.remove(2));
         assertTrue(treap1.remove(3));
@@ -53,7 +44,7 @@ public class TreapTest {
 
         assertEquals(6, treap1.size());
 
-
+        //Тест для contains()
         assertFalse(treap1.contains(7));
         assertFalse(treap1.contains(3));
         assertFalse(treap1.contains(16));
@@ -63,8 +54,55 @@ public class TreapTest {
         assertTrue(treap1.contains(6));
 
 
+        //Тест для first() и last()
         assertEquals(0, (int) treap1.first());
         assertEquals(13, (int) treap1.last());
+
+        //Тест для isEmpty()
+        assertFalse(treap1.isEmpty());
+    }
+
+    @Test
+    public void testForIterator() {
+
+        SortedSet<Integer> treap2 = new Treap<>();
+
+        assertTrue(treap2.add(7));
+        assertTrue(treap2.add(4));
+        assertTrue(treap2.add(2));
+        assertTrue(treap2.add(0));
+        assertTrue(treap2.add(3));
+        assertTrue(treap2.add(6));
+        assertTrue(treap2.add(5));
+        assertTrue(treap2.add(13));
+        assertTrue(treap2.add(9));
+        assertTrue(treap2.add(14));
+        assertTrue(treap2.add(11));
+
+        Iterator<Integer> iterator1 = treap2.iterator();
+        Iterator<Integer> iterator2 = treap2.iterator();
+
+        while (iterator1.hasNext()) {
+            assertEquals(iterator2.next(), iterator1.next());
+        }
+
+
+        Integer key;
+        Integer[] keys = new Integer[11];
+        treap2.toArray(keys);
+
+        List<Integer> list = new ArrayList<>();
+
+        Iterator<Integer> treapIter = treap2.iterator();
+        while (treapIter.hasNext()) {
+            key = treapIter.next();
+            list.add(key);
+            treapIter.remove();
+        }
+        assertTrue(treap2.isEmpty());
+        assertArrayEquals(keys, list.toArray(new Integer[11]));
     }
 
 }
+
+
