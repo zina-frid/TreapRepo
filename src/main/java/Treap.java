@@ -17,7 +17,6 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
             this.key = key;
             priority = random.nextInt();
         }
-
     }
 
     private static final Random random = new Random();
@@ -94,8 +93,6 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
             if (res.getKey() != null) res.getKey().parent = null;
             return new Pair<>(res.getKey(), start);
         }
-
-
     }
 
     @Override
@@ -113,6 +110,7 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
         return true;
     }
 
+
     public boolean remove(T key) {
 
         TreapNode<T> closest = find(key);
@@ -121,7 +119,6 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
             return removeNode(closest);
 
         return false;
-
     }
 
     public boolean removeNode(TreapNode<T>  closest) {
@@ -148,24 +145,27 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
         return true;
     }
 
-
-
     @Override
     public T first() {
+
         if (root == null) throw new NoSuchElementException();
+
         TreapNode<T> node = root;
         while (node.left != null) node = node.left;
+
         return node.key;
     }
 
     @Override
     public T last() {
+
         if (root == null) throw new NoSuchElementException();
+
         TreapNode<T> node = root;
         while (node.right != null) node = node.right;
+
         return node.key;
     }
-
 
     @Override
     public Comparator<? super T> comparator() {
@@ -183,24 +183,21 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
         private final Stack<TreapNode<T>> stack = new Stack<>();
         TreapNode<T> currentNode = null;
 
-
-        private void pushToLeft(TreapNode<T> node) {
+        private void pushToLeftAndRight(TreapNode<T> node) {
             if (node != null) {
                 stack.push(node);
-                pushToLeft(node.left);
+                pushToLeftAndRight(node.left);
             }
         }
 
         private TreapIterator() {
-            pushToLeft(root);
+            pushToLeftAndRight(root);
         }
-
 
         @Override
         public boolean hasNext() {
             return !stack.isEmpty();
         }
-
 
         @Override
         public T next() {
@@ -208,7 +205,7 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
 
             TreapNode<T> node = stack.pop();
             currentNode = node;
-            pushToLeft(node.right);
+            pushToLeftAndRight(node.right);
 
             return node.key;
         }
@@ -221,10 +218,8 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
 
     }
 
-
-
-
     @NotNull
+    @Override
     public SortedSet<T> subSet(T fromElement, T toElement) {
 
         if (toElement == null && fromElement == null)
@@ -236,24 +231,27 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
     }
 
     @NotNull
+    @Override
     public SortedSet<T> headSet(T toElement) {
 
         if (toElement == null) throw new IllegalArgumentException();
+
         return new SubTreap(null, toElement, this);
     }
 
     @NotNull
+    @Override
     public SortedSet<T> tailSet(T fromElement) {
 
         if (fromElement == null) throw new IllegalArgumentException();
+
         return new SubTreap(fromElement, null, this);
     }
 
-
     private class SubTreap extends Treap<T>{
-        private final T bottom;
-        private final T up;
-        private final Treap<T> treap;
+        final T bottom;
+        final T up;
+        Treap<T> treap;
 
         SubTreap(T bottom, T up, Treap<T> treap){
             this.bottom = bottom;
@@ -261,9 +259,12 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
             this.treap = treap;
         }
 
-        private boolean checkInvariant(T key) {
-            if(bottom != null && up != null && key.compareTo(bottom) >= 0 && key.compareTo(up) < 0) return true;
-            return (bottom == null && key.compareTo(up) < 0) || (up == null && key.compareTo(bottom) >= 0);
+        private boolean check(T key) {
+
+            return (bottom != null && up != null &&
+                    key.compareTo(bottom) >= 0 && key.compareTo(up) < 0) ||
+                    (bottom == null && key.compareTo(up) < 0) ||
+                    (up == null && key.compareTo(bottom) >= 0);
         }
 
 
@@ -272,24 +273,26 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
             if(treap == null) return 0;
             int count = 0;
             for (T key: treap)
-                if (checkInvariant(key)) count++;
+                if (check(key)) count++;
             return count;
         }
 
-        public boolean contains(T key) {
-            return checkInvariant(key) && treap.contains(key);
+        public boolean contains(Object o) {
+
+            T t = (T) o;
+            return check(t) && treap.contains(t);
         }
 
         @Override
         public boolean add(T key) {
-            if (!checkInvariant(key))
+            if (!check(key))
                 throw new IllegalArgumentException();
             return treap.add(key);
         }
 
         @Override
         public boolean remove(T key) {
-            if (!checkInvariant(key))
+            if (!check(key))
                 throw new IllegalArgumentException();
             return treap.remove(key);
         }
@@ -302,49 +305,51 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
 
         public class SubTreapIterator implements Iterator<T> {
 
-            Iterator<T> iterator = Treap.this.iterator();
-            T nextKey = null;
+            private final Stack<TreapNode<T>> stack = new Stack<>();
+            TreapNode<T> currentNode = null;
 
+            private void pushToLeftAndRight(TreapNode<T> node) {
 
+                if (node.left != null) pushToLeftAndRight(node.left);
+
+                if(check(node.key)) stack.push(node);
+
+                if (node.right != null)  pushToLeftAndRight(node.right);
+            }
 
             private SubTreapIterator() {
-                while (iterator.hasNext()) {
-                    T key = iterator.next();
-                    if (checkInvariant(key)) {
-                        nextKey = key;
-                        break;
-                    }
+                if(root != null) {
+                    pushToLeftAndRight(root);
+                    currentNode = stack.peek();
                 }
             }
 
-
             @Override
             public boolean hasNext() {
-                return nextKey != null;
+                return !stack.isEmpty();
             }
 
             @Override
             public T next() {
                 if (!hasNext()) throw new NoSuchElementException();
 
-                T key = nextKey;
-                if (iterator.hasNext()) nextKey = iterator.next();
-                else nextKey = null;
+                TreapNode<T> node = stack.pop();
+                currentNode = node;
 
-                if(!checkInvariant(nextKey)) nextKey = null;
-                return key;
+                return node.key;
             }
 
             @Override
             public void remove() {
-                iterator.remove();
+                if (currentNode == null) throw new IllegalStateException();
+                treap.remove(currentNode.key);
             }
         }
 
         @Override
         public T first() {
             for (T key : treap)
-                if (checkInvariant(key)) return key;
+                if (check(key)) return key;
             throw new NoSuchElementException();
         }
 
@@ -352,35 +357,36 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
         public T last() {
             T result = null;
             for (T key : treap)
-                if (checkInvariant(key)) result = key;
+                if (check(key)) result = key;
             if (result == null) throw new NoSuchElementException();
             return result;
         }
-
     }
 
-
+    @Override
     public boolean containsAll(Collection<?> c) {
         for (Object o : c)
             if (!contains(o)) return false;
         return true;
     }
 
+    @Override
     public boolean addAll(Collection<? extends T> c) {
         for (T t : c)
             if (!this.add(t)) return false;
         return true;
     }
 
+    @Override
     public boolean retainAll(@NotNull Collection<?> c) {
         if (this.containsAll(c)) {
             for (Object t : this) {
-                remove(t);
                 if (!c.contains(t)) remove(t);
             } return true;
         } else return false;
     }
 
+    @Override
     public boolean removeAll(@NotNull Collection<?> c) {
         if (this.containsAll(c)) {
             for (Object t : c) remove(t);
@@ -388,8 +394,9 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
         } else return false;
     }
 
+    @Override
     public void clear() {
-
+        this.root = null;
+        this.size = 0;
     }
-
 }
