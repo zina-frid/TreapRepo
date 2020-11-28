@@ -1,5 +1,4 @@
 import java.util.*;
-import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements SortedSet<T> {
@@ -54,6 +53,7 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
 
     @Override
     public boolean contains(Object o) {
+        @SuppressWarnings("unchecked")
         T t = (T) o;
         TreapNode<T> closest = find(t);
         return closest != null && t.compareTo(closest.key) == 0;
@@ -74,24 +74,24 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
         }
     }
 
-    public Pair<TreapNode<T>, TreapNode<T>> split(TreapNode<T> start, T key){
-        if (start == null) return new Pair<>(null, null);
+    public NodePair<TreapNode<T>, TreapNode<T>> split(TreapNode<T> start, T key){
+        if (start == null) return new NodePair<>(null, null);
         if (key.compareTo(start.key) > 0) {
 
-            Pair<TreapNode<T>, TreapNode<T>> res = split(start.right, key);
-            start.right = res.getKey();
+            NodePair<TreapNode<T>, TreapNode<T>> res = split(start.right, key);
+            start.right = res.getFirst();
 
             if (start.right != null) start.right.parent = start;
-            if (res.getValue() != null) res.getValue().parent = null;
-            return new Pair<>(start, res.getValue());
+            if (res.getSecond() != null) res.getSecond().parent = null;
+            return new NodePair<>(start, res.getSecond());
 
         } else {
-            Pair<TreapNode<T>, TreapNode<T>> res = split(start.left, key);
-            start.left = res.getValue();
+            NodePair<TreapNode<T>, TreapNode<T>> res = split(start.left, key);
+            start.left = res.getSecond();
 
             if (start.left != null) start.left.parent = start;
-            if (res.getKey() != null) res.getKey().parent = null;
-            return new Pair<>(res.getKey(), start);
+            if (res.getFirst() != null) res.getFirst().parent = null;
+            return new NodePair<>(res.getFirst(), start);
         }
     }
 
@@ -101,18 +101,20 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
 
         if (closest != null && closest.key.equals(key)) return false;
 
-        Pair<TreapNode<T>, TreapNode<T>> twoTreaps = split(root, key);
-        TreapNode<T> temp = merge(twoTreaps.getKey(), new TreapNode<>(key));
-        root = merge(temp, twoTreaps.getValue());
+        NodePair<TreapNode<T>, TreapNode<T>> twoTreaps = split(root, key);
+        TreapNode<T> temp = merge(twoTreaps.getFirst(), new TreapNode<>(key));
+        root = merge(temp, twoTreaps.getSecond());
 
         root.parent = null;
         size++;
         return true;
     }
 
+    @Override
+    public boolean remove(Object o) {
 
-    public boolean remove(T key) {
-
+        @SuppressWarnings("unchecked")
+        T key = (T) o;
         TreapNode<T> closest = find(key);
 
         if (closest != null && closest.key.equals(key))
@@ -277,8 +279,10 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
             return count;
         }
 
+        @Override
         public boolean contains(Object o) {
 
+            @SuppressWarnings("unchecked")
             T t = (T) o;
             return check(t) && treap.contains(t);
         }
@@ -291,7 +295,10 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
         }
 
         @Override
-        public boolean remove(T key) {
+        public boolean remove(Object o) {
+
+            @SuppressWarnings("unchecked")
+            T key = (T) o;
             if (!check(key))
                 throw new IllegalArgumentException();
             return treap.remove(key);

@@ -164,6 +164,7 @@ public class TreapTest {
         assertTrue(subSetTreap.contains(10));
 
         assertTrue(subSetTreap.add(4));
+        assertTrue(treap3.contains(4));
         assertEquals(4, subSetTreap.size());
         assertTrue(subSetTreap.remove(4));
         assertEquals(3, subSetTreap.size());
