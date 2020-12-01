@@ -216,8 +216,8 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
         public void remove() {
             if (currentNode == null) throw new IllegalStateException();
             removeNode(currentNode);
+            currentNode = null;
         }
-
     }
 
     @NotNull
