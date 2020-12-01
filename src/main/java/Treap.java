@@ -171,7 +171,7 @@ public class Treap <T extends Comparable<T>> extends AbstractSet<T> implements S
 
     @Override
     public Comparator<? super T> comparator() {
-        return null;
+        return (Comparator<T>) Comparable::compareTo;
     }
 
     @NotNull

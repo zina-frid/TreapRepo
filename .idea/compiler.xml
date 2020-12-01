@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="TreapRepo" target="7" />
+      <module name="TreapRepo" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>
