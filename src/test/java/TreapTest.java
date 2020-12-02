@@ -9,6 +9,8 @@ public class TreapTest {
 
         SortedSet<Integer> treap1 = new Treap<>();
 
+        assertTrue(treap1.isEmpty());
+
         //Тест для add()
         assertTrue(treap1.add(7));
         assertTrue(treap1.add(4));
