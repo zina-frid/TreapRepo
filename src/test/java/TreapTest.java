@@ -1,4 +1,8 @@
 import org.junit.Test;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import static org.junit.Assert.*;
 
@@ -364,7 +368,29 @@ public class TreapTest {
         assertTrue(treap5.remove("u"));
 
         assertTrue(treap5.isEmpty());
-
     }
 
+    @Test
+    public void testForPrint() throws IOException {
+
+        FileWriter fw = new FileWriter("src/test/resources/output.txt");
+        Treap<Integer> treap1 = new Treap<>();
+
+        assertTrue(treap1.add(7));
+        assertTrue(treap1.add(4));
+        assertTrue(treap1.add(2));
+        assertTrue(treap1.add(0));
+        assertTrue(treap1.add(3));
+        assertTrue(treap1.add(6));
+        assertTrue(treap1.add(5));
+        assertTrue(treap1.add(13));
+        assertTrue(treap1.add(9));
+        assertTrue(treap1.add(14));
+        assertTrue(treap1.add(11));
+        treap1.printTreap(fw);
+        fw.close();
+
+
+
+    }
 }
